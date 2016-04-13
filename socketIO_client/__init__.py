@@ -193,13 +193,15 @@ class EngineIO(LoggingMixin):
 
     def _ping(self, engineIO_packet_data=''):
         engineIO_packet_type = 2
-        self._transport_instance.send_packet(
-            engineIO_packet_type, engineIO_packet_data)
+        if hasattr(self, '_transport_instance') and hasattr(self._transport_instance, 'send_packet'):
+            self._transport_instance.send_packet(
+                engineIO_packet_type, engineIO_packet_data)
 
     def _pong(self, engineIO_packet_data=''):
         engineIO_packet_type = 3
-        self._transport_instance.send_packet(
-            engineIO_packet_type, engineIO_packet_data)
+        if hasattr(self, '_transport_instance') and hasattr(self._transport_instance, 'send_packet'):
+            self._transport_instance.send_packet(
+                engineIO_packet_type, engineIO_packet_data)
 
     @retry
     def _message(self, engineIO_packet_data, with_transport_instance=False):
