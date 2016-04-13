@@ -13,6 +13,7 @@ from .parsers import (
     encode_engineIO_content, decode_engineIO_content,
     format_packet_text, parse_packet_text)
 from .symmetries import format_query, memoryview, parse_url
+from threading import Lock
 
 
 if not hasattr(websocket, 'create_connection'):
@@ -140,6 +141,7 @@ class WebsocketTransport(AbstractTransport):
             self._connection = websocket.create_connection(ws_url, **kw)
         except Exception as e:
             raise ConnectionError(e)
+        self.lock = Lock()
 
     def recv_packet(self):
         try:
@@ -159,7 +161,9 @@ class WebsocketTransport(AbstractTransport):
     def send_packet(self, engineIO_packet_type, engineIO_packet_data=''):
         packet = format_packet_text(engineIO_packet_type, engineIO_packet_data)
         try:
+            self.lock.acquire()
             self._connection.send(packet)
+            self.lock.release()
         except websocket.WebSocketTimeoutException as e:
             raise TimeoutError('send timed out (%s)' % e)
         except socket.error as e:
