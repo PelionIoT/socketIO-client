@@ -57,7 +57,7 @@ class EngineIO(LoggingMixin):
     @property
     def _transport(self):
         self._transport_lock.acquire()
-        if self._opened:
+        if self._opened or self._wants_to_close:
             self._transport_lock.release()
             return self._transport_instance
         self._engineIO_session = self._get_engineIO_session()
@@ -193,15 +193,13 @@ class EngineIO(LoggingMixin):
 
     def _ping(self, engineIO_packet_data=''):
         engineIO_packet_type = 2
-        if hasattr(self, '_transport_instance') and hasattr(self._transport_instance, 'send_packet'):
-            self._transport_instance.send_packet(
-                engineIO_packet_type, engineIO_packet_data)
+        self._transport_instance.send_packet(
+            engineIO_packet_type, engineIO_packet_data)
 
     def _pong(self, engineIO_packet_data=''):
         engineIO_packet_type = 3
-        if hasattr(self, '_transport_instance') and hasattr(self._transport_instance, 'send_packet'):
-            self._transport_instance.send_packet(
-                engineIO_packet_type, engineIO_packet_data)
+        self._transport_instance.send_packet(
+            engineIO_packet_type, engineIO_packet_data)
 
     @retry
     def _message(self, engineIO_packet_data, with_transport_instance=False):
