@@ -47,6 +47,9 @@ class AbstractTransport(object):
     def set_timeout(self, seconds=None):
         pass
 
+    def disconnect(self):
+        pass
+
 
 class XHR_PollingTransport(AbstractTransport):
 
@@ -174,6 +177,8 @@ class WebsocketTransport(AbstractTransport):
     def set_timeout(self, seconds=None):
         self._connection.settimeout(seconds or self._timeout)
 
+    def disconnect(self):
+        self._connection.close()
 
 def get_response(request, *args, **kw):
     try:

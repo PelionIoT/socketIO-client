@@ -189,6 +189,8 @@ class EngineIO(LoggingMixin):
             self._transport_instance.send_packet(engineIO_packet_type)
         except (TimeoutError, ConnectionError):
             pass
+        finally:
+            self._transport_instance.disconnect()
         self._opened = False
 
     def _ping(self, engineIO_packet_data=''):
