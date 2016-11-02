@@ -1,6 +1,7 @@
 import requests
 import six
 import ssl
+from threading import Lock
 import threading
 import time
 from socket import error as SocketError
@@ -43,6 +44,9 @@ class AbstractTransport(object):
         pass
 
     def set_timeout(self, seconds=None):
+        pass
+
+    def disconnect(self):
         pass
 
 
@@ -138,6 +142,7 @@ class WebsocketTransport(AbstractTransport):
             self._connection = create_connection(ws_url, **kw)
         except Exception as e:
             raise ConnectionError(e)
+        self.lock = Lock()
 
     def recv_packet(self):
         try:
@@ -150,16 +155,19 @@ class WebsocketTransport(AbstractTransport):
             raise ConnectionError('recv disconnected (%s)' % e)
         except SocketError as e:
             raise ConnectionError('recv disconnected (%s)' % e)
-        if not isinstance(packet_text, six.binary_type):
-            packet_text = six.b(packet_text)
-        engineIO_packet_type, engineIO_packet_data = parse_packet_text(
-            packet_text)
-        yield engineIO_packet_type, engineIO_packet_data
+        if packet_text:
+            if not isinstance(packet_text, six.binary_type):
+                packet_text = six.b(packet_text)
+            engineIO_packet_type, engineIO_packet_data = parse_packet_text(
+                packet_text)
+            yield engineIO_packet_type, engineIO_packet_data
 
     def send_packet(self, engineIO_packet_type, engineIO_packet_data=''):
         packet = format_packet_text(engineIO_packet_type, engineIO_packet_data)
         try:
+            self.lock.acquire()
             self._connection.send(packet)
+            self.lock.release()
         except WebSocketTimeoutException as e:
             raise TimeoutError('send timed out (%s)' % e)
         except (SocketError, WebSocketConnectionClosedException) as e:
@@ -168,6 +176,8 @@ class WebsocketTransport(AbstractTransport):
     def set_timeout(self, seconds=None):
         self._connection.settimeout(seconds or self._timeout)
 
+    def disconnect(self):
+        self._connection.close()
 
 def get_response(request, *args, **kw):
     try:
