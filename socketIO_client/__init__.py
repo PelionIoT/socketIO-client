@@ -198,6 +198,7 @@ class EngineIO(LoggingMixin):
         try:
             self._heartbeat_thread.halt()
             self._heartbeat_thread.join()
+            self._heartbeat_thread = None
         except AttributeError:
             pass
         if not hasattr(self, '_opened') or not self._opened:
@@ -272,7 +273,8 @@ class EngineIO(LoggingMixin):
                     namespace.on_disconnect()
                 except PacketError:
                     pass
-        self._heartbeat_thread.relax()
+        if self._heartbeat_thread:
+            self._heartbeat_thread.relax()
         self._transport.set_timeout()
 
     def _should_stop_waiting(self):
