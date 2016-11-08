@@ -202,6 +202,7 @@ class EngineIO(LoggingMixin):
         except AttributeError:
             pass
         if not hasattr(self, '_opened') or not self._opened:
+            self._http_session.close()
             return
         engineIO_packet_type = 1
         try:
@@ -209,6 +210,7 @@ class EngineIO(LoggingMixin):
         except (TimeoutError, ConnectionError):
             pass
         finally:
+            self._http_session.close()
             self._transport_instance.disconnect()
         self._opened = False
 
