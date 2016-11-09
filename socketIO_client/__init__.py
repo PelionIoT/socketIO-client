@@ -59,15 +59,15 @@ class EngineIO(LoggingMixin):
     @property
     def _transport(self):
         self._transport_lock.acquire()
-        if self._opened or self._wants_to_close:
+        try:
+            if not self._opened and not self._wants_to_close:
+                self._engineIO_session = self._get_engineIO_session()
+                self._negotiate_transport()
+                self._connect_namespaces()
+                self._opened = True
+                self._reset_heartbeat()
+        finally:
             self._transport_lock.release()
-            return self._transport_instance
-        self._engineIO_session = self._get_engineIO_session()
-        self._negotiate_transport()
-        self._connect_namespaces()
-        self._opened = True
-        self._reset_heartbeat()
-        self._transport_lock.release()
         return self._transport_instance
 
     def _get_engineIO_session(self):

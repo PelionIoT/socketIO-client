@@ -164,14 +164,15 @@ class WebsocketTransport(AbstractTransport):
 
     def send_packet(self, engineIO_packet_type, engineIO_packet_data=''):
         packet = format_packet_text(engineIO_packet_type, engineIO_packet_data)
+        self.lock.acquire()
         try:
-            self.lock.acquire()
             self._connection.send(packet)
-            self.lock.release()
         except WebSocketTimeoutException as e:
             raise TimeoutError('send timed out (%s)' % e)
         except (SocketError, WebSocketConnectionClosedException) as e:
             raise ConnectionError('send disconnected (%s)' % e)
+        finally:
+            self.lock.release()
 
     def set_timeout(self, seconds=None):
         self._connection.settimeout(seconds or self._timeout)
