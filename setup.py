@@ -31,7 +31,7 @@ setup(
     install_requires=[
         'requests>=2.7.0',
         'six',
-        'websocket-client>=0.51.0-1'
+        'websocket-client==0.51.0-1'
     ],
     tests_require=[
         'nose',
