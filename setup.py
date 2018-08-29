@@ -26,7 +26,7 @@ setup(
     author_email='rhh@crosscompute.com',
     url='https://github.com/invisibleroads/socketIO-client',
     dependency_links=[
-        'git+https://github.com/ARMmbed/websocket-client@ssl-socket-read-fix#egg=websocket-client-0.51.0-1'
+        'git+https://github.com/ARMmbed/websocket-client@v0.51.0-1#egg=websocket-client-0.51.0-1'
     ],
     install_requires=[
         'requests>=2.7.0',
