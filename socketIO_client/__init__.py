@@ -281,7 +281,11 @@ class EngineIO(LoggingMixin):
                     pass
         if self._heartbeat_thread:
             self._heartbeat_thread.relax()
-        self._transport.set_timeout()
+        try:
+            self._transport.set_timeout()
+        except ConnectionError:
+            if not self._should_stop_waiting(**kw):
+                raise
 
     def _should_stop_waiting(self):
         return self._wants_to_close
