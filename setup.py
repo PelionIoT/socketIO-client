@@ -25,13 +25,10 @@ setup(
     author='Roy Hyunjin Han',
     author_email='rhh@crosscompute.com',
     url='https://github.com/invisibleroads/socketIO-client',
-    dependency_links=[
-        'git+https://github.com/ARMmbed/websocket-client@v0.51.0-1#egg=websocket-client-0.51.0-1'
-    ],
     install_requires=[
         'requests>=2.7.0',
         'six',
-        'websocket-client==0.51.0-1'
+        'websocket-client>=0.56.0'
     ],
     tests_require=[
         'nose',
