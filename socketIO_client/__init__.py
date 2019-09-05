@@ -271,11 +271,13 @@ class EngineIO(LoggingMixin):
                 self._opened = False
                 try:
                     warning = Exception('[connection error] %s' % e)
+                    self._debug(e)
                     warning_screen.throw(warning)
                 except StopIteration:
                     self._warn(warning)
                 try:
                     namespace = self.get_namespace()
+                    self._debug("Disconnect callback from wait.")
                     namespace._find_packet_callback('disconnect')()
                 except PacketError:
                     pass
@@ -435,6 +437,7 @@ class SocketIO(EngineIO):
             self._close()
         try:
             namespace = self._namespace_by_path[path]
+            self._debug("Disconnect callback call from disconnect.")
             namespace._find_packet_callback('disconnect')()
             if path:
                 del self._namespace_by_path[path]
@@ -517,6 +520,7 @@ class SocketIO(EngineIO):
 
     def _on_disconnect(self, data_parsed, namespace):
         namespace._connected = False
+        self._debug("Disconnect callback call from on_disconnect")
         namespace._find_packet_callback('disconnect')()
 
     def _on_event(self, data_parsed, namespace):
